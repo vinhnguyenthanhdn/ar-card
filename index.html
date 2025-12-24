@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thiệp Mời Tất Niên 2025 - AR Experience</title>
+    <meta name="description" content="Thiệp mời tất niên cuối năm với trải nghiệm Augmented Reality độc đáo">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/",
+            "mindar-image-three": "https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-three.prod.js"
+        }
+    }
+    </script>
+  <script type="module" crossorigin src="/ar-card/assets/index-BVXDrNz9.js"></script>
+  <link rel="stylesheet" crossorigin href="/ar-card/assets/index-Dw8Z5YqI.css">
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loading-screen">
+        <div class="loading-content">
+            <div class="spinner"></div>
+            <h2>Đang tải trải nghiệm AR...</h2>
+            <p class="loading-text">Vui lòng chờ trong giây lát</p>
+        </div>
+    </div>
+
+    <!-- Welcome Screen -->
+    <div id="welcome-screen">
+        <div class="welcome-container">
+            <div class="welcome-header">
+                <h1 class="festival-title">🎊 Thiệp Mời Tất Niên 2025 🎊</h1>
+                <p class="subtitle">Trải nghiệm AR độc đáo</p>
+            </div>
+            
+            <div class="welcome-content">
+                <div class="instruction-card">
+                    <div class="icon">📱</div>
+                    <h3>Cách sử dụng</h3>
+                    <ol class="instructions">
+                        <li>Nhấn nút "Bắt đầu" bên dưới</li>
+                        <li>Cho phép truy cập camera</li>
+                        <li>Hướng camera vào hình marker (sẽ được cung cấp)</li>
+                        <li>Trải nghiệm thiệp mời AR 3D tuyệt vời!</li>
+                    </ol>
+                </div>
+                
+                <div class="info-card">
+                    <h3>✨ Những gì bạn sẽ thấy</h3>
+                    <ul class="features">
+                        <li>🎆 Hiệu ứng pháo hoa 3D</li>
+                        <li>🎁 Lời chúc năm mới</li>
+                        <li>📅 Thông tin sự kiện</li>
+                        <li>🎵 Âm thanh sống động</li>
+                    </ul>
+                </div>
+            </div>
+            
+            <button id="start-button" class="start-btn">
+                <span>Bắt Đầu Trải Nghiệm AR</span>
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- AR Container -->
+    <div id="ar-container" style="display: none;">
+        <div id="ar-scene"></div>
+        
+        <!-- AR UI Overlay -->
+        <div class="ar-overlay">
+            <div class="ar-header">
+                <button id="back-button" class="icon-btn">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+                <span class="ar-title">Tìm kiếm marker...</span>
+            </div>
+            
+            <div class="ar-instructions">
+                <div class="instruction-box">
+                    <p>📸 Hướng camera vào hình marker để xem thiệp mời AR</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+
+    
+</body>
+</html>
