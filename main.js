@@ -7,6 +7,9 @@ let videoElement = null;
 let currentVideoIndex = -1; // Track current video to avoid repetition
 let videoTexture = null;
 let videoMaterial = null;
+let ring = null; // Ring mesh for marker indicator
+let videoPlane = null; // Video plane mesh
+let isTargetVisible = false; // Track if target is currently visible
 
 // Video paths array
 const VIDEO_PATHS = [
@@ -62,10 +65,28 @@ backButton.addEventListener('click', () => {
 
 // ReScan button - reset video and allow rescanning
 rescanButton.addEventListener('click', () => {
+    console.log('🔄 ReScan button clicked');
+
+    // Stop and hide video
     if (videoElement) {
         videoElement.pause();
         videoElement.currentTime = 0;
     }
+
+    // Hide video plane
+    if (videoPlane) {
+        videoPlane.visible = false;
+    }
+
+    // Show ring again
+    if (ring) {
+        ring.visible = true;
+    }
+
+    // Reset target visibility state
+    isTargetVisible = false;
+
+    // Update UI
     arTitle.textContent = '🔍 Hãy quét lại marker để xem video mới!';
     arTitle.style.color = 'white';
 });
@@ -164,7 +185,7 @@ async function initializeAR() {
             map: videoTexture,
             side: THREE.DoubleSide
         });
-        const videoPlane = new THREE.Mesh(videoGeometry, videoMaterial);
+        videoPlane = new THREE.Mesh(videoGeometry, videoMaterial);
         videoPlane.position.z = 0.01;
         anchor.group.add(videoPlane);
 
@@ -177,7 +198,7 @@ async function initializeAR() {
             metalness: 0.8,
             roughness: 0.2,
         });
-        const ring = new THREE.Mesh(ringGeometry, ringMaterial);
+        ring = new THREE.Mesh(ringGeometry, ringMaterial);
         ring.position.z = 0.02;
         anchor.group.add(ring);
 
@@ -185,15 +206,29 @@ async function initializeAR() {
         anchor.onTargetFound = () => {
             console.log('🎯 Target found!');
 
-            // Load a new random video (different from current)
-            const newVideoIndex = getRandomVideoIndex();
-            loadVideo(newVideoIndex);
+            // Only load new video if not currently visible (after rescan)
+            if (!isTargetVisible) {
+                // Load a new random video (different from current)
+                const newVideoIndex = getRandomVideoIndex();
+                loadVideo(newVideoIndex);
 
-            arTitle.textContent = `🎉 Video ${newVideoIndex + 1}/3`;
+                arTitle.textContent = `🎉 Video ${newVideoIndex + 1}/3`;
+            }
+
             arTitle.style.color = '#4ECDC4';
 
+            // Show video plane
+            if (videoPlane) {
+                videoPlane.visible = true;
+            }
+
             // Hide the ring when video is playing
-            ring.visible = false;
+            if (ring) {
+                ring.visible = false;
+            }
+
+            // Mark target as visible
+            isTargetVisible = true;
 
             if (videoElement) {
                 const playPromise = videoElement.play();
