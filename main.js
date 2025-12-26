@@ -161,14 +161,18 @@ async function initializeAR() {
 
         console.log('Target URL:', targetPath);
 
-        // Initialize MindAR
+        // Initialize MindAR with optimized tracking parameters
         mindarThree = new MindARThree({
             container: document.querySelector('#ar-scene'),
             imageTargetSrc: targetPath,
             uiLoading: 'yes',
             uiScanning: 'no',
-            filterMinCF: 0.1,
-            filterBeta: 10,
+            // Tracking optimization
+            filterMinCF: 0.0001,      // Lower = easier to detect (default: 0.0001)
+            filterBeta: 1000,         // Higher = smoother tracking (default: 1000)
+            warmupTolerance: 5,       // Tolerance during warmup (default: 5)
+            missTolerance: 5,         // Tolerance when target lost (default: 0)
+            maxTrack: 1,              // Track only 1 target for better performance
         });
 
         const { renderer, scene, camera } = mindarThree;
