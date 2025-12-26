@@ -95,11 +95,23 @@ function loadVideo(index) {
         videoElement.crossOrigin = 'anonymous';
     }
 
+    // Pause current video
+    videoElement.pause();
+
+    // Load new video
     videoElement.src = videoPath;
     videoElement.load();
     currentVideoIndex = index;
 
-    console.log(`📹 Loaded video ${index + 1}: ${VIDEO_PATHS[index]}`);
+    // Update texture when video is ready
+    videoElement.addEventListener('loadeddata', () => {
+        if (videoTexture) {
+            videoTexture.needsUpdate = true;
+        }
+        console.log(`📹 Video ${index + 1} ready to play`);
+    }, { once: true });
+
+    console.log(`📹 Loading video ${index + 1}: ${VIDEO_PATHS[index]}`);
 }
 
 // Initialize AR
