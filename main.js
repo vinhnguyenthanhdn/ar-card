@@ -219,8 +219,8 @@ async function initializeAR() {
         anchor.group.add(ring);
 
         // Create 3D Text using canvas texture
-        const texts = ['AInnovation', 'GST GDN', 'SUMUP 2025'];
-        const textYPositions = [1.0, 0.85, 0.7]; // Y positions for each line - moved higher
+        const texts = ['AInnovation', 'GST GDN - SUMUP 2025'];
+        const textYPositions = [0.9, 0.65]; // Y positions - moved lower with better spacing
 
         texts.forEach((text, index) => {
             // Create canvas for text
@@ -230,15 +230,29 @@ async function initializeAR() {
             canvas.height = 256;
 
             // Style text
-            context.fillStyle = '#ffffff';
             context.font = 'bold 100px Arial';
             context.textAlign = 'center';
             context.textBaseline = 'middle';
 
-            // Add glow effect
+            // Create 3D depth effect with shadow layers
+            const depth = 3; // Number of layers for 3D effect
+
+            // Draw shadow layers to create depth
+            for (let i = depth; i > 0; i--) {
+                context.fillStyle = `rgba(0, 0, 0, ${0.3 - (i * 0.05)})`;
+                context.fillText(text, (canvas.width / 2) + i, (canvas.height / 2) + i);
+            }
+
+            // Draw main text with glow
             context.shadowColor = '#FFD700';
-            context.shadowBlur = 20;
+            context.shadowBlur = 25;
+            context.fillStyle = '#ffffff';
             context.fillText(text, canvas.width / 2, canvas.height / 2);
+
+            // Add highlight layer
+            context.shadowBlur = 0;
+            context.fillStyle = 'rgba(255, 255, 255, 0.3)';
+            context.fillText(text, (canvas.width / 2) - 1, (canvas.height / 2) - 1);
 
             // Create texture from canvas
             const texture = new THREE.CanvasTexture(canvas);
@@ -341,15 +355,8 @@ async function initializeAR() {
         arTitle.textContent = '✅ Đã sẵn sàng! Hãy quét ảnh.';
         console.log('MindAR started successfully!');
 
-        // Render loop with animation
+        // Render loop (no animation)
         renderer.setAnimationLoop(() => {
-            // Animate text rotation (horizontal spin)
-            animationTime += 0.01;
-            textMeshes.forEach((mesh, index) => {
-                // Rotate around Y-axis (horizontal rotation)
-                mesh.rotation.y = animationTime + (index * 0.3);
-            });
-
             renderer.render(scene, camera);
         });
 
