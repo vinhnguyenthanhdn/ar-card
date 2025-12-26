@@ -1,5 +1,7 @@
 import * as THREE from 'three';
 import { MindARThree } from 'mindar-image-three';
+import { FontLoader } from 'three/addons/loaders/FontLoader.js';
+import { TextGeometry } from 'three/addons/geometries/TextGeometry.js';
 
 let mindarThree = null;
 let isARRunning = false;
@@ -10,6 +12,8 @@ let videoMaterial = null;
 let ring = null; // Ring mesh for marker indicator
 let videoPlane = null; // Video plane mesh
 let isTargetVisible = false; // Track if target is currently visible
+let textMeshes = []; // Array to hold 3D text meshes
+let animationTime = 0; // For bounce animation
 
 // Video paths array
 const VIDEO_PATHS = [
@@ -82,6 +86,11 @@ rescanButton.addEventListener('click', () => {
     if (ring) {
         ring.visible = true;
     }
+
+    // Hide text meshes
+    textMeshes.forEach(sprite => {
+        sprite.visible = false;
+    });
 
     // Reset target visibility state
     isTargetVisible = false;
@@ -202,6 +211,52 @@ async function initializeAR() {
         ring.position.z = 0.02;
         anchor.group.add(ring);
 
+        // Create 3D Text using canvas texture
+        const texts = ['AInnovation', 'GST GDN', 'SUMUP 2025'];
+        const textYPositions = [0.4, 0.3, 0.2]; // Y positions for each line
+
+        texts.forEach((text, index) => {
+            // Create canvas for text
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            canvas.width = 1024;
+            canvas.height = 256;
+
+            // Style text
+            context.fillStyle = '#ffffff';
+            context.font = 'bold 100px Arial';
+            context.textAlign = 'center';
+            context.textBaseline = 'middle';
+
+            // Add glow effect
+            context.shadowColor = '#FFD700';
+            context.shadowBlur = 20;
+            context.fillText(text, canvas.width / 2, canvas.height / 2);
+
+            // Create texture from canvas
+            const texture = new THREE.CanvasTexture(canvas);
+            texture.needsUpdate = true;
+
+            // Create sprite material
+            const spriteMaterial = new THREE.SpriteMaterial({
+                map: texture,
+                transparent: true,
+                opacity: 0.9
+            });
+
+            // Create sprite
+            const sprite = new THREE.Sprite(spriteMaterial);
+            sprite.scale.set(1.2, 0.3, 1);
+            sprite.position.set(0, textYPositions[index], 0.05);
+
+            // Store for animation
+            sprite.userData.baseY = textYPositions[index];
+            sprite.userData.offset = index * 0.5; // Offset for wave effect
+
+            anchor.group.add(sprite);
+            textMeshes.push(sprite);
+        });
+
         // Target Found
         anchor.onTargetFound = () => {
             console.log('🎯 Target found!');
@@ -226,6 +281,11 @@ async function initializeAR() {
             if (ring) {
                 ring.visible = false;
             }
+
+            // Show text meshes
+            textMeshes.forEach(sprite => {
+                sprite.visible = true;
+            });
 
             // Mark target as visible
             isTargetVisible = true;
@@ -273,8 +333,15 @@ async function initializeAR() {
         arTitle.textContent = '✅ Đã sẵn sàng! Hãy quét ảnh.';
         console.log('MindAR started successfully!');
 
-        // Render loop
+        // Render loop with animation
         renderer.setAnimationLoop(() => {
+            // Animate text bounce
+            animationTime += 0.03;
+            textMeshes.forEach((sprite) => {
+                const bounce = Math.sin(animationTime + sprite.userData.offset) * 0.03;
+                sprite.position.y = sprite.userData.baseY + bounce;
+            });
+
             renderer.render(scene, camera);
         });
 
