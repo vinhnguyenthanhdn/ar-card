@@ -133,11 +133,18 @@ function loadVideo(index) {
     videoElement.load();
     currentVideoIndex = index;
 
-    // Update texture when video is ready
-    videoElement.addEventListener('loadeddata', () => {
+    // Update texture when video is ready - use multiple events for better compatibility
+    const updateTexture = () => {
         if (videoTexture) {
             videoTexture.needsUpdate = true;
+            console.log(`📹 Video ${index + 1} texture updated`);
         }
+    };
+
+    videoElement.addEventListener('loadeddata', updateTexture, { once: true });
+    videoElement.addEventListener('canplay', updateTexture, { once: true });
+    videoElement.addEventListener('canplaythrough', () => {
+        updateTexture();
         console.log(`📹 Video ${index + 1} ready to play`);
     }, { once: true });
 
@@ -213,7 +220,7 @@ async function initializeAR() {
 
         // Create 3D Text using canvas texture
         const texts = ['AInnovation', 'GST GDN', 'SUMUP 2025'];
-        const textYPositions = [0.4, 0.3, 0.2]; // Y positions for each line
+        const textYPositions = [1.0, 0.85, 0.7]; // Y positions for each line - moved higher
 
         texts.forEach((text, index) => {
             // Create canvas for text
@@ -335,11 +342,11 @@ async function initializeAR() {
 
         // Render loop with animation
         renderer.setAnimationLoop(() => {
-            // Animate text bounce
-            animationTime += 0.03;
-            textMeshes.forEach((sprite) => {
-                const bounce = Math.sin(animationTime + sprite.userData.offset) * 0.03;
-                sprite.position.y = sprite.userData.baseY + bounce;
+            // Animate text rotation (horizontal spin)
+            animationTime += 0.01;
+            textMeshes.forEach((sprite, index) => {
+                // Rotate around Y-axis (horizontal rotation)
+                sprite.material.rotation = animationTime + (index * 0.3);
             });
 
             renderer.render(scene, camera);
