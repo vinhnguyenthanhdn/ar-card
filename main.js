@@ -229,18 +229,20 @@ async function initializeAR() {
             canvas.width = 1024;
             canvas.height = 256;
 
-            // Style text
-            context.font = 'bold 100px Arial';
+            // Style text - different sizes for different lines
+            const fontSize = index === 0 ? 90 : 70; // Smaller for second line
+            context.font = `bold ${fontSize}px Arial`;
             context.textAlign = 'center';
             context.textBaseline = 'middle';
 
             // Create 3D depth effect with shadow layers
-            const depth = 3; // Number of layers for 3D effect
+            const depth = 8; // More layers for stronger 3D effect
+            const offsetDistance = 2; // Pixel distance between layers
 
             // Draw shadow layers to create depth
             for (let i = depth; i > 0; i--) {
-                context.fillStyle = `rgba(0, 0, 0, ${0.3 - (i * 0.05)})`;
-                context.fillText(text, (canvas.width / 2) + i, (canvas.height / 2) + i);
+                context.fillStyle = `rgba(0, 0, 0, ${0.7 - (i * 0.08)})`;
+                context.fillText(text, (canvas.width / 2) + (i * offsetDistance), (canvas.height / 2) + (i * offsetDistance));
             }
 
             // Draw main text with glow
@@ -249,10 +251,10 @@ async function initializeAR() {
             context.fillStyle = '#ffffff';
             context.fillText(text, canvas.width / 2, canvas.height / 2);
 
-            // Add highlight layer
+            // Add bright highlight layer for more 3D pop
             context.shadowBlur = 0;
-            context.fillStyle = 'rgba(255, 255, 255, 0.3)';
-            context.fillText(text, (canvas.width / 2) - 1, (canvas.height / 2) - 1);
+            context.fillStyle = 'rgba(255, 255, 255, 0.6)';
+            context.fillText(text, (canvas.width / 2) - 2, (canvas.height / 2) - 2);
 
             // Create texture from canvas
             const texture = new THREE.CanvasTexture(canvas);
