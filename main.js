@@ -88,8 +88,8 @@ rescanButton.addEventListener('click', () => {
     }
 
     // Hide text meshes
-    textMeshes.forEach(sprite => {
-        sprite.visible = false;
+    textMeshes.forEach(mesh => {
+        mesh.visible = false;
     });
 
     // Reset target visibility state
@@ -244,24 +244,25 @@ async function initializeAR() {
             const texture = new THREE.CanvasTexture(canvas);
             texture.needsUpdate = true;
 
-            // Create sprite material
-            const spriteMaterial = new THREE.SpriteMaterial({
+            // Create mesh material (not sprite to avoid billboard effect)
+            const textMaterial = new THREE.MeshBasicMaterial({
                 map: texture,
                 transparent: true,
-                opacity: 0.9
+                opacity: 0.9,
+                side: THREE.DoubleSide
             });
 
-            // Create sprite
-            const sprite = new THREE.Sprite(spriteMaterial);
-            sprite.scale.set(1.2, 0.3, 1);
-            sprite.position.set(0, textYPositions[index], 0.05);
+            // Create plane mesh instead of sprite
+            const planeGeometry = new THREE.PlaneGeometry(1.2, 0.3);
+            const textMesh = new THREE.Mesh(planeGeometry, textMaterial);
+            textMesh.position.set(0, textYPositions[index], 0.05);
 
             // Store for animation
-            sprite.userData.baseY = textYPositions[index];
-            sprite.userData.offset = index * 0.5; // Offset for wave effect
+            textMesh.userData.baseY = textYPositions[index];
+            textMesh.userData.offset = index * 0.5;
 
-            anchor.group.add(sprite);
-            textMeshes.push(sprite);
+            anchor.group.add(textMesh);
+            textMeshes.push(textMesh);
         });
 
         // Target Found
@@ -290,8 +291,8 @@ async function initializeAR() {
             }
 
             // Show text meshes
-            textMeshes.forEach(sprite => {
-                sprite.visible = true;
+            textMeshes.forEach(mesh => {
+                mesh.visible = true;
             });
 
             // Mark target as visible
@@ -344,9 +345,9 @@ async function initializeAR() {
         renderer.setAnimationLoop(() => {
             // Animate text rotation (horizontal spin)
             animationTime += 0.01;
-            textMeshes.forEach((sprite, index) => {
+            textMeshes.forEach((mesh, index) => {
                 // Rotate around Y-axis (horizontal rotation)
-                sprite.material.rotation = animationTime + (index * 0.3);
+                mesh.rotation.y = animationTime + (index * 0.3);
             });
 
             renderer.render(scene, camera);
