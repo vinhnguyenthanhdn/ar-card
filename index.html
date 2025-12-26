@@ -25,6 +25,25 @@
     </script>
     <script type="module" src="main.js"></script>
     <link rel="stylesheet" crossorigin href="/ar-card/assets/index-Dw8Z5YqI.css">
+    <style>
+        .rescan-btn {
+            margin-left: auto;
+        }
+
+        .rescan-btn:active {
+            animation: rotate-icon 0.5s ease;
+        }
+
+        @keyframes rotate-icon {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
 </head>
 
 <body>
@@ -82,6 +101,13 @@
                     </svg>
                 </button>
                 <span class="ar-title">Tìm kiếm marker...</span>
+                <button id="rescan-button" class="icon-btn rescan-btn">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path
+                            d="M21 3V9M21 9H15M21 9L17.5 5.5C16.1 4.1 14.2 3 12 3C7.029 3 3 7.029 3 12C3 16.971 7.029 21 12 21C16.281 21 19.813 17.843 20.777 13.75"
+                            stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </button>
             </div>
 
             <div class="ar-instructions">

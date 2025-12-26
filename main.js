@@ -4,6 +4,16 @@ import { MindARThree } from 'mindar-image-three';
 let mindarThree = null;
 let isARRunning = false;
 let videoElement = null;
+let currentVideoIndex = -1; // Track current video to avoid repetition
+let videoTexture = null;
+let videoMaterial = null;
+
+// Video paths array
+const VIDEO_PATHS = [
+    '/ar-card/assets/video1.mp4',
+    '/ar-card/assets/video2.mp4',
+    '/ar-card/assets/video3.mp4'
+];
 
 // DOM Elements
 const loadingScreen = document.getElementById('loading-screen');
@@ -11,6 +21,7 @@ const welcomeScreen = document.getElementById('welcome-screen');
 const arContainer = document.getElementById('ar-container');
 const startButton = document.getElementById('start-button');
 const backButton = document.getElementById('back-button');
+const rescanButton = document.getElementById('rescan-button');
 const arTitle = document.querySelector('.ar-title');
 
 // Hide loading screen after page load
@@ -49,6 +60,48 @@ backButton.addEventListener('click', () => {
     window.location.reload();
 });
 
+// ReScan button - reset video and allow rescanning
+rescanButton.addEventListener('click', () => {
+    if (videoElement) {
+        videoElement.pause();
+        videoElement.currentTime = 0;
+    }
+    arTitle.textContent = '🔍 Hãy quét lại marker để xem video mới!';
+    arTitle.style.color = 'white';
+});
+
+// Get random video index different from current
+function getRandomVideoIndex() {
+    if (VIDEO_PATHS.length === 1) return 0;
+
+    let newIndex;
+    do {
+        newIndex = Math.floor(Math.random() * VIDEO_PATHS.length);
+    } while (newIndex === currentVideoIndex);
+
+    return newIndex;
+}
+
+// Load video by index
+function loadVideo(index) {
+    const videoPath = new URL(VIDEO_PATHS[index], import.meta.url).href;
+
+    if (!videoElement) {
+        videoElement = document.createElement('video');
+        videoElement.loop = true;
+        videoElement.muted = true;
+        videoElement.playsInline = true;
+        videoElement.setAttribute('playsinline', '');
+        videoElement.crossOrigin = 'anonymous';
+    }
+
+    videoElement.src = videoPath;
+    videoElement.load();
+    currentVideoIndex = index;
+
+    console.log(`📹 Loaded video ${index + 1}: ${VIDEO_PATHS[index]}`);
+}
+
 // Initialize AR
 async function initializeAR() {
     try {
@@ -56,10 +109,8 @@ async function initializeAR() {
 
         console.log('Resolving asset paths...');
         const targetPath = new URL('/ar-card/assets/targets-BI1wfD3M.mind', import.meta.url).href;
-        const videoPath = new URL('/ar-card/assets/video-DnOXofXB.mp4', import.meta.url).href;
 
         console.log('Target URL:', targetPath);
-        console.log('Video URL:', videoPath);
 
         // Initialize MindAR
         mindarThree = new MindARThree({
@@ -84,18 +135,12 @@ async function initializeAR() {
         // Create anchor for target 0
         const anchor = mindarThree.addAnchor(0);
 
-        // Create video element
-        videoElement = document.createElement('video');
-        videoElement.src = videoPath;
-        videoElement.loop = true;
-        videoElement.muted = true;
-        videoElement.playsInline = true;
-        videoElement.setAttribute('playsinline', '');
-        videoElement.crossOrigin = 'anonymous';
-        videoElement.load();
+        // Load first random video
+        const initialVideoIndex = getRandomVideoIndex();
+        loadVideo(initialVideoIndex);
 
         // Video texture
-        const videoTexture = new THREE.VideoTexture(videoElement);
+        videoTexture = new THREE.VideoTexture(videoElement);
         videoTexture.minFilter = THREE.LinearFilter;
         videoTexture.magFilter = THREE.LinearFilter;
         videoTexture.format = THREE.RGBAFormat;
@@ -103,7 +148,7 @@ async function initializeAR() {
         // Video plane
         const aspectRatio = 16 / 9;
         const videoGeometry = new THREE.PlaneGeometry(1, 1 / aspectRatio);
-        const videoMaterial = new THREE.MeshBasicMaterial({
+        videoMaterial = new THREE.MeshBasicMaterial({
             map: videoTexture,
             side: THREE.DoubleSide
         });
@@ -127,7 +172,12 @@ async function initializeAR() {
         // Target Found
         anchor.onTargetFound = () => {
             console.log('🎯 Target found!');
-            arTitle.textContent = '🎉 Đã tìm thấy Marker!';
+
+            // Load a new random video (different from current)
+            const newVideoIndex = getRandomVideoIndex();
+            loadVideo(newVideoIndex);
+
+            arTitle.textContent = `🎉 Video ${newVideoIndex + 1}/3`;
             arTitle.style.color = '#4ECDC4';
 
             // Hide the ring when video is playing
