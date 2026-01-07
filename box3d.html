@@ -526,7 +526,27 @@
             camera.updateProjectionMatrix();
             renderer.setSize(width, height);
         });
+
+        // Play background music on page load
+        window.addEventListener('load', () => {
+            const bgMusic = document.getElementById('bg-music-box');
+            if (bgMusic) {
+                bgMusic.play().catch(error => {
+                    console.log('Background music autoplay prevented:', error);
+                    // Retry on first user interaction
+                    document.body.addEventListener('click', () => {
+                        bgMusic.play();
+                    }, { once: true });
+                });
+            }
+        });
     </script>
+
+    <!-- Background Music -->
+    <audio id="bg-music-box" loop>
+        <source src="assets/music1.mp3" type="audio/mpeg">
+    </audio>
+
 </body>
 
 </html>

@@ -44,6 +44,14 @@ startButton.addEventListener('click', async () => {
         welcomeScreen.classList.add('fade-out');
         arTitle.textContent = '⏳ Đang khởi động...';
 
+        // Play background music
+        const bgMusic = document.getElementById('bg-music');
+        if (bgMusic) {
+            bgMusic.play().catch(error => {
+                console.log('Background music autoplay prevented:', error);
+            });
+        }
+
         setTimeout(async () => {
             welcomeScreen.style.display = 'none';
             arContainer.style.display = 'block';
