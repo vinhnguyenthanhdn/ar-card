@@ -66,7 +66,8 @@
             border-radius: 20px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
             border: 1px solid rgba(255, 255, 255, 0.3);
-            display: flex;
+            display: none;
+            /* Hidden */
             gap: 15px;
             flex-wrap: wrap;
             justify-content: center;
@@ -96,6 +97,9 @@
         }
 
         .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
             background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
             color: white;
             border: none;
@@ -106,6 +110,7 @@
             cursor: pointer;
             transition: all 0.3s ease;
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            z-index: 100;
         }
 
         .back-btn:hover {
@@ -233,15 +238,16 @@
 
     <div id="header">
         <h1>Thiệp Mời SUMUP GST GDN 2025</h1>
-        <p>Kéo để xoay • Cuộn để phóng to/thu nhỏ</p>
+        <p>Kéo để xoay • Scroll hoặc Pinch để Zoom</p>
     </div>
 
     <div id="container">
         <div id="canvas-container"></div>
     </div>
 
+    <button class="back-btn" id="backBtn">← Back</button>
+
     <div id="controls">
-        <button class="back-btn" id="backBtn">← Back</button>
         <button class="control-btn" id="resetBtn">🔄 Đặt lại</button>
         <button class="control-btn" id="toggleRotationBtn">⏸️ Dừng xoay</button>
         <div class="control-label">
@@ -388,28 +394,57 @@
 
         // Touch interaction for mobile
         let touchStartPos = { x: 0, y: 0 };
+        let initialPinchDistance = 0;
+        let lastPinchDistance = 0;
+
+        function getTouchDistance(touch1, touch2) {
+            const dx = touch1.clientX - touch2.clientX;
+            const dy = touch1.clientY - touch2.clientY;
+            return Math.sqrt(dx * dx + dy * dy);
+        }
 
         renderer.domElement.addEventListener('touchstart', (e) => {
-            touchStartPos = {
-                x: e.touches[0].clientX,
-                y: e.touches[0].clientY
-            };
-        });
-
-        renderer.domElement.addEventListener('touchmove', (e) => {
-            if (box) {
-                const deltaX = e.touches[0].clientX - touchStartPos.x;
-                const deltaY = e.touches[0].clientY - touchStartPos.y;
-
-                box.rotation.y += deltaX * 0.01;
-                box.rotation.x += deltaY * 0.01;
-
+            if (e.touches.length === 1) {
                 touchStartPos = {
                     x: e.touches[0].clientX,
                     y: e.touches[0].clientY
                 };
+            } else if (e.touches.length === 2) {
+                // Pinch zoom start
+                initialPinchDistance = getTouchDistance(e.touches[0], e.touches[1]);
+                lastPinchDistance = initialPinchDistance;
             }
         });
+
+        renderer.domElement.addEventListener('touchmove', (e) => {
+            e.preventDefault(); // Prevent page scroll/zoom on canvas
+
+            if (box) {
+                if (e.touches.length === 1) {
+                    // Single finger - rotate
+                    const deltaX = e.touches[0].clientX - touchStartPos.x;
+                    const deltaY = e.touches[0].clientY - touchStartPos.y;
+
+                    box.rotation.y += deltaX * 0.01;
+                    box.rotation.x += deltaY * 0.01;
+
+                    touchStartPos = {
+                        x: e.touches[0].clientX,
+                        y: e.touches[0].clientY
+                    };
+                } else if (e.touches.length === 2) {
+                    // Two fingers - pinch zoom
+                    const currentDistance = getTouchDistance(e.touches[0], e.touches[1]);
+                    const delta = currentDistance - lastPinchDistance;
+
+                    // Zoom camera based on pinch
+                    camera.position.z -= delta * 0.01;
+                    camera.position.z = Math.max(2, Math.min(10, camera.position.z));
+
+                    lastPinchDistance = currentDistance;
+                }
+            }
+        }, { passive: false });
 
         // Zoom with mouse wheel
         renderer.domElement.addEventListener('wheel', (e) => {
@@ -440,6 +475,25 @@
         // Back button
         document.getElementById('backBtn').addEventListener('click', () => {
             window.location.href = 'https://vinhnguyenthanhdn.github.io/ar-card/';
+        });
+
+        // Prevent page zoom on mobile, only allow canvas zoom
+        document.addEventListener('touchmove', (e) => {
+            if (e.touches.length > 1) {
+                e.preventDefault();
+            }
+        }, { passive: false });
+
+        document.addEventListener('gesturestart', (e) => {
+            e.preventDefault();
+        });
+
+        document.addEventListener('gesturechange', (e) => {
+            e.preventDefault();
+        });
+
+        document.addEventListener('gestureend', (e) => {
+            e.preventDefault();
         });
 
         // Animation loop
