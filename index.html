@@ -43,6 +43,86 @@
                 transform: rotate(360deg);
             }
         }
+
+        /* Enhanced festival title animation */
+        .festival-title {
+            animation: shimmer 3s ease-in-out infinite, float 4s ease-in-out infinite !important;
+            text-shadow: 0 0 30px rgba(255, 215, 0, 0.5), 0 0 60px rgba(255, 107, 107, 0.3);
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        /* 3D Card Button */
+        .open-3d-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 15px;
+            padding: 16px 32px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: white;
+            background: linear-gradient(135deg, #FFD93D 0%, #FF6B6B 50%, #F093FB 100%);
+            background-size: 200% 200%;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 24px rgba(255, 107, 107, 0.4), 0 0 40px rgba(255, 215, 61, 0.3);
+            animation: gradientShift 3s ease infinite, glow 2s ease-in-out infinite;
+            pointer-events: auto;
+            text-decoration: none;
+        }
+
+        .open-3d-btn:hover {
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 12px 32px rgba(255, 107, 107, 0.6), 0 0 60px rgba(255, 215, 61, 0.5);
+        }
+
+        .open-3d-btn:active {
+            transform: translateY(-2px) scale(1.02);
+        }
+
+        @keyframes gradientShift {
+
+            0%,
+            100% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+        }
+
+        @keyframes glow {
+
+            0%,
+            100% {
+                box-shadow: 0 8px 24px rgba(255, 107, 107, 0.4), 0 0 40px rgba(255, 215, 61, 0.3);
+            }
+
+            50% {
+                box-shadow: 0 12px 32px rgba(255, 107, 107, 0.6), 0 0 60px rgba(255, 215, 61, 0.5);
+            }
+        }
+
+        .instruction-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
     </style>
 </head>
 
@@ -60,7 +140,7 @@
     <div id="welcome-screen">
         <div class="welcome-container">
             <div class="welcome-header">
-                <h1 class="festival-title">SUMUP GST GDN</h1>
+                <h1 class="festival-title">SUMUP GST GDN 2025</h1>
             </div>
 
             <div class="welcome-content">
@@ -110,6 +190,12 @@
             <div class="ar-instructions">
                 <div class="instruction-box">
                     <p>📸 Hướng camera vào hình marker để xem thiệp mời AR</p>
+                    <a href="https://vinhnguyenthanhdn.github.io/ar-card/box3d.html" class="open-3d-btn"
+                        target="_blank">
+                        <span>🎁</span>
+                        <span>Mở Thiệp 3D</span>
+                        <span>✨</span>
+                    </a>
                 </div>
             </div>
         </div>
