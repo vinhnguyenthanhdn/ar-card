@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Khối Hộp 3D - AR Card</title>
     <meta name="description" content="Khối hộp 3D tương tác với hình ảnh từ AR Card project">
     <style>
@@ -92,6 +92,28 @@
         }
 
         .control-btn:active {
+            transform: translateY(0);
+        }
+
+        .back-btn {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .back-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .back-btn:active {
             transform: translateY(0);
         }
 
@@ -210,7 +232,7 @@
     </div>
 
     <div id="header">
-        <h1>🎁 Khối Hộp 3D Tương Tác</h1>
+        <h1>Thiệp Mời SUMUP GST GDN 2025</h1>
         <p>Kéo để xoay • Cuộn để phóng to/thu nhỏ</p>
     </div>
 
@@ -219,6 +241,7 @@
     </div>
 
     <div id="controls">
+        <button class="back-btn" id="backBtn">← Back</button>
         <button class="control-btn" id="resetBtn">🔄 Đặt lại</button>
         <button class="control-btn" id="toggleRotationBtn">⏸️ Dừng xoay</button>
         <div class="control-label">
@@ -412,6 +435,11 @@
 
         document.getElementById('speedSlider').addEventListener('input', (e) => {
             rotationSpeed = parseFloat(e.target.value) * 0.01;
+        });
+
+        // Back button
+        document.getElementById('backBtn').addEventListener('click', () => {
+            window.location.href = 'https://vinhnguyenthanhdn.github.io/ar-card/';
         });
 
         // Animation loop
