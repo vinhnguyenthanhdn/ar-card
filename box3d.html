@@ -97,30 +97,40 @@
             transform: translateY(0);
         }
 
+        /* Shared Icon Button Style */
+        .icon-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 48px;
+            height: 48px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: white;
+            padding: 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .icon-btn:hover {
+            transform: scale(1.05);
+            background: rgba(255, 255, 255, 0.25);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .icon-btn:active {
+            transform: scale(0.95);
+        }
+
         .back-btn {
             position: fixed;
             top: 20px;
             left: 20px;
-            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 12px;
-            font-size: 0.9rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-            z-index: 100;
-        }
-
-        .back-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-        }
-
-        .back-btn:active {
-            transform: translateY(0);
+            z-index: 1000;
         }
 
         .control-label {
@@ -208,41 +218,33 @@
             font-weight: 600;
         }
 
-        /* Music Toggle Button */
+        /* Music Toggle Button (Positioning) */
         .music-toggle-btn {
             position: fixed;
             top: 20px;
             right: 20px;
-            width: 56px;
-            height: 56px;
-            border-radius: 12px;
-            background: rgba(255, 255, 255, 0.15);
-            backdrop-filter: blur(15px);
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
             z-index: 1000;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+            /* Ensure same z-index */
         }
 
-        .music-toggle-btn:hover {
-            transform: scale(1.1);
-            background: rgba(255, 255, 255, 0.25);
-            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
+        .music-toggle-btn svg,
+        .back-btn svg {
+            width: 24px;
+            height: 24px;
+            stroke: white;
+            /* Default stroke color if needed */
         }
 
-        .music-toggle-btn:active {
-            transform: scale(0.95);
-        }
-
-        .music-toggle-btn svg {
-            width: 28px;
-            height: 28px;
+        .music-toggle-btn svg path {
             fill: white;
-            transition: all 0.3s ease;
+            /* Fill for music icon */
+            stroke: none;
+        }
+
+        .back-btn svg path {
+            stroke: white;
+            /* Stroke for back icon */
+            fill: none;
         }
 
         .music-toggle-btn.muted svg {
@@ -288,21 +290,18 @@
             .back-btn {
                 top: 110px;
                 left: 10px;
-                padding: 8px 16px;
-                font-size: 0.8rem;
+                padding: 0;
+                /* Clear padding from button text version */
+                width: 48px;
+                height: 48px;
             }
 
             .music-toggle-btn {
-                width: 48px;
-                height: 48px;
                 top: 110px;
                 right: 10px;
             }
 
-            .music-toggle-btn svg {
-                width: 24px;
-                height: 24px;
-            }
+            /* Remove explicit svg sizing in media query as it inherits from main rule */
         }
     </style>
 </head>
@@ -334,7 +333,13 @@
         <div id="canvas-container"></div>
     </div>
 
-    <button class="back-btn" id="backBtn">← Back</button>
+    <!-- Back Button (Icon) -->
+    <button class="icon-btn back-btn" id="backBtn" title="Quay lại">
+        <svg class="back-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M19 12H5M5 12L12 19M5 12L12 5" stroke="white" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round" />
+        </svg>
+    </button>
 
     <div id="controls">
         <button class="control-btn" id="resetBtn">🔄 Đặt lại</button>
@@ -384,7 +389,7 @@
             'assets/03.jpg', // top
             'assets/04.jpg', // bottom
             'assets/06.jpg', // right
-            'assets/05.jpg'  // left
+            'assets/05.jpg' // left
         ];
 
         // Load all textures
@@ -415,7 +420,7 @@
             // 01-04: 1440x809 (width x height)
             // 05-06: 809x809
 
-            const width = 1440 / 400;  // Scaled down
+            const width = 1440 / 400; // Scaled down
             const height = 809 / 400;
             const depth = 809 / 400;
 
