@@ -311,6 +311,13 @@
             const bgMusic = document.getElementById('bg-music');
             const iconOn = document.getElementById('music-icon-on');
             const iconOff = document.getElementById('music-icon-off');
+
+            // Check if all elements exist
+            if (!musicToggle || !bgMusic || !iconOn || !iconOff) {
+                console.error('Music toggle elements not found');
+                return;
+            }
+
             let isMusicPlaying = false;
 
             // Music toggle handler
