@@ -14,6 +14,8 @@ let videoPlane = null; // Video plane mesh
 let isTargetVisible = false; // Track if target is currently visible
 let textMeshes = []; // Array to hold 3D text meshes
 let animationTime = 0; // For bounce animation
+let buttonShown = false; // Track if button has been shown
+let videoStartTime = 0; // Track when video started playing
 
 // Video paths array
 const VIDEO_PATHS = [
@@ -329,7 +331,29 @@ async function initializeAR() {
             if (videoElement) {
                 const playPromise = videoElement.play();
                 if (playPromise !== undefined) {
-                    playPromise.catch(error => {
+                    playPromise.then(() => {
+                        // Video started playing successfully
+                        videoStartTime = Date.now();
+
+                        // Check video playback time to show button
+                        if (!buttonShown) {
+                            const checkVideoTime = setInterval(() => {
+                                const elapsedTime = (Date.now() - videoStartTime) / 1000;
+
+                                if (elapsedTime >= 5) {
+                                    // Show the 3D card button
+                                    const btn = document.getElementById('open-3d-btn');
+                                    if (btn) {
+                                        btn.classList.remove('hidden');
+                                        btn.classList.add('show');
+                                        buttonShown = true;
+                                        console.log('🎁 3D Card button shown!');
+                                    }
+                                    clearInterval(checkVideoTime);
+                                }
+                            }, 500); // Check every 500ms
+                        }
+                    }).catch(error => {
                         console.log('Autoplay prevented:', error);
                         arTitle.textContent = '👆 Chạm vào màn hình để xem video';
                     });
