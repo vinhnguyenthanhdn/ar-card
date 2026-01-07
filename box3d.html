@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Khối Hộp 3D - AR Card</title>
+    <meta name="description" content="Khối hộp 3D tương tác với hình ảnh từ AR Card project">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        #header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        #header h1 {
+            color: white;
+            font-size: 2rem;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            margin-bottom: 10px;
+        }
+
+        #header p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.95rem;
+        }
+
+        #container {
+            flex: 1;
+            position: relative;
+            width: 100%;
+        }
+
+        #canvas-container {
+            width: 100%;
+            height: 100%;
+        }
+
+        #controls {
+            position: absolute;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(15px);
+            padding: 20px 30px;
+            border-radius: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .control-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .control-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .control-btn:active {
+            transform: translateY(0);
+        }
+
+        .control-label {
+            color: white;
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        input[type="range"] {
+            width: 150px;
+            height: 6px;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, 0.3);
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: white;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+            border: none;
+        }
+
+        #loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            transition: opacity 0.5s ease;
+        }
+
+        #loading.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loader {
+            width: 60px;
+            height: 60px;
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-top: 5px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .loading-text {
+            color: white;
+            margin-top: 20px;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            #header h1 {
+                font-size: 1.5rem;
+            }
+
+            #controls {
+                bottom: 15px;
+                padding: 15px 20px;
+                gap: 10px;
+            }
+
+            .control-btn {
+                padding: 10px 20px;
+                font-size: 0.85rem;
+            }
+
+            input[type="range"] {
+                width: 120px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="loading">
+        <div class="loader"></div>
+        <div class="loading-text">Đang tải khối hộp 3D...</div>
+    </div>
+
+    <div id="header">
+        <h1>🎁 Khối Hộp 3D Tương Tác</h1>
+        <p>Kéo để xoay • Cuộn để phóng to/thu nhỏ</p>
+    </div>
+
+    <div id="container">
+        <div id="canvas-container"></div>
+    </div>
+
+    <div id="controls">
+        <button class="control-btn" id="resetBtn">🔄 Đặt lại</button>
+        <button class="control-btn" id="toggleRotationBtn">⏸️ Dừng xoay</button>
+        <div class="control-label">
+            <span>Tốc độ:</span>
+            <input type="range" id="speedSlider" min="0" max="2" step="0.1" value="0.5">
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // Scene setup
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+
+        const container = document.getElementById('canvas-container');
+        renderer.setSize(container.clientWidth, container.clientHeight);
+        renderer.setClearColor(0x000000, 0);
+        container.appendChild(renderer.domElement);
+
+        // Lighting
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+        scene.add(ambientLight);
+
+        const directionalLight1 = new THREE.DirectionalLight(0xffffff, 0.8);
+        directionalLight1.position.set(5, 5, 5);
+        scene.add(directionalLight1);
+
+        const directionalLight2 = new THREE.DirectionalLight(0xffffff, 0.4);
+        directionalLight2.position.set(-5, -5, -5);
+        scene.add(directionalLight2);
+
+        // Camera position
+        camera.position.z = 5;
+
+        // Texture loader
+        const textureLoader = new THREE.TextureLoader();
+        let loadedTextures = 0;
+        const totalTextures = 6;
+
+        const textures = [];
+        const imageFiles = [
+            'assets/01.jpg', // front
+            'assets/02.jpg', // back
+            'assets/03.jpg', // top
+            'assets/04.jpg', // bottom
+            'assets/06.jpg', // right
+            'assets/05.jpg'  // left
+        ];
+
+        // Load all textures
+        imageFiles.forEach((file, index) => {
+            textureLoader.load(file,
+                (texture) => {
+                    textures[index] = texture;
+                    loadedTextures++;
+                    if (loadedTextures === totalTextures) {
+                        createBox();
+                        hideLoading();
+                    }
+                },
+                undefined,
+                (error) => {
+                    console.error('Error loading texture:', file, error);
+                }
+            );
+        });
+
+        let box;
+        let isRotating = true;
+        let rotationSpeed = 0.005;
+
+        function createBox() {
+            // Create materials for each face
+            // Box dimensions based on image sizes
+            // 01-04: 1440x809 (width x height)
+            // 05-06: 809x809
+
+            const width = 1440 / 400;  // Scaled down
+            const height = 809 / 400;
+            const depth = 809 / 400;
+
+            const materials = textures.map(texture => {
+                return new THREE.MeshStandardMaterial({
+                    map: texture,
+                    side: THREE.FrontSide
+                });
+            });
+
+            const geometry = new THREE.BoxGeometry(width, height, depth);
+            box = new THREE.Mesh(geometry, materials);
+
+            // Apply materials to specific faces
+            // Order: right, left, top, bottom, front, back
+            box.geometry.groups.forEach((group, i) => {
+                if (i === 0) group.materialIndex = 4; // right - 06
+                if (i === 1) group.materialIndex = 5; // left - 05
+                if (i === 2) group.materialIndex = 2; // top - 03
+                if (i === 3) group.materialIndex = 3; // bottom - 04
+                if (i === 4) group.materialIndex = 0; // front - 01
+                if (i === 5) group.materialIndex = 1; // back - 02
+            });
+
+            scene.add(box);
+
+            // Initial rotation for better view
+            box.rotation.x = 0.2;
+            box.rotation.y = 0.3;
+        }
+
+        function hideLoading() {
+            const loading = document.getElementById('loading');
+            loading.classList.add('hidden');
+        }
+
+        // Mouse interaction
+        let isDragging = false;
+        let previousMousePosition = { x: 0, y: 0 };
+
+        renderer.domElement.addEventListener('mousedown', (e) => {
+            isDragging = true;
+            previousMousePosition = { x: e.clientX, y: e.clientY };
+        });
+
+        renderer.domElement.addEventListener('mousemove', (e) => {
+            if (isDragging && box) {
+                const deltaX = e.clientX - previousMousePosition.x;
+                const deltaY = e.clientY - previousMousePosition.y;
+
+                box.rotation.y += deltaX * 0.01;
+                box.rotation.x += deltaY * 0.01;
+
+                previousMousePosition = { x: e.clientX, y: e.clientY };
+            }
+        });
+
+        renderer.domElement.addEventListener('mouseup', () => {
+            isDragging = false;
+        });
+
+        renderer.domElement.addEventListener('mouseleave', () => {
+            isDragging = false;
+        });
+
+        // Touch interaction for mobile
+        let touchStartPos = { x: 0, y: 0 };
+
+        renderer.domElement.addEventListener('touchstart', (e) => {
+            touchStartPos = {
+                x: e.touches[0].clientX,
+                y: e.touches[0].clientY
+            };
+        });
+
+        renderer.domElement.addEventListener('touchmove', (e) => {
+            if (box) {
+                const deltaX = e.touches[0].clientX - touchStartPos.x;
+                const deltaY = e.touches[0].clientY - touchStartPos.y;
+
+                box.rotation.y += deltaX * 0.01;
+                box.rotation.x += deltaY * 0.01;
+
+                touchStartPos = {
+                    x: e.touches[0].clientX,
+                    y: e.touches[0].clientY
+                };
+            }
+        });
+
+        // Zoom with mouse wheel
+        renderer.domElement.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            camera.position.z += e.deltaY * 0.01;
+            camera.position.z = Math.max(2, Math.min(10, camera.position.z));
+        });
+
+        // Controls
+        document.getElementById('resetBtn').addEventListener('click', () => {
+            if (box) {
+                box.rotation.x = 0.2;
+                box.rotation.y = 0.3;
+                camera.position.z = 5;
+            }
+        });
+
+        const toggleBtn = document.getElementById('toggleRotationBtn');
+        toggleBtn.addEventListener('click', () => {
+            isRotating = !isRotating;
+            toggleBtn.textContent = isRotating ? '⏸️ Dừng xoay' : '▶️ Tiếp tục xoay';
+        });
+
+        document.getElementById('speedSlider').addEventListener('input', (e) => {
+            rotationSpeed = parseFloat(e.target.value) * 0.01;
+        });
+
+        // Animation loop
+        function animate() {
+            requestAnimationFrame(animate);
+
+            if (box && isRotating && !isDragging) {
+                box.rotation.x += rotationSpeed * 0.5;
+                box.rotation.y += rotationSpeed;
+            }
+
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            const width = container.clientWidth;
+            const height = container.clientHeight;
+
+            camera.aspect = width / height;
+            camera.updateProjectionMatrix();
+            renderer.setSize(width, height);
+        });
+    </script>
+</body>
+
+</html>
